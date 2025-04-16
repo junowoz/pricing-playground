@@ -22,6 +22,7 @@ import {
   arredondarComTerminacao,
   mensalParaAnual,
   formatarMoeda,
+  BillingPeriod,
 } from "../lib/pricing-utils";
 
 interface PlanItemProps {
@@ -120,7 +121,9 @@ export function PlanItem({ planId }: PlanItemProps) {
           {/* Period selection */}
           <Select
             value={plano.periodo}
-            onValueChange={(v) => updatePlano(plano.id, { periodo: v })}
+            onValueChange={(v: BillingPeriod) =>
+              updatePlano(plano.id, { periodo: v })
+            }
           >
             <SelectTrigger className="w-full sm:w-[140px]">
               <SelectValue />
