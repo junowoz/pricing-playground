@@ -16,13 +16,11 @@ import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { usePricingStore } from "../lib/pricing-store";
 import {
   BILLING_PERIODS,
-  PRICE_ENDINGS,
+  BillingPeriod,
   calcularPreco,
   arredondarPsicologico,
-  arredondarComTerminacao,
   mensalParaAnual,
   formatarMoeda,
-  BillingPeriod,
 } from "../lib/pricing-utils";
 
 interface PlanItemProps {
@@ -36,11 +34,9 @@ export function PlanItem({ planId }: PlanItemProps) {
     removePlano,
     toggleArredondamento,
     setTipoArredondamento,
-    setTerminacaoArredondamento,
     desconto,
     ajuste,
     arredondamento: arredondamentoGlobal,
-    terminacao: terminacaoGlobal,
     mostrarPrecoAnual,
   } = usePricingStore();
 
@@ -63,11 +59,6 @@ export function PlanItem({ planId }: PlanItemProps) {
         precoFinal = arredondarPsicologico(precoFinal, "up");
       } else if (plano.arredondamento.tipo === "down") {
         precoFinal = arredondarPsicologico(precoFinal, "down");
-      } else if (plano.arredondamento.tipo === "terminacao") {
-        precoFinal = arredondarComTerminacao(
-          precoFinal,
-          plano.arredondamento.terminacao
-        );
       }
     }
     // Apply global rounding if individual is not active
@@ -76,8 +67,6 @@ export function PlanItem({ planId }: PlanItemProps) {
         precoFinal = arredondarPsicologico(precoFinal, "up");
       } else if (arredondamentoGlobal === "down") {
         precoFinal = arredondarPsicologico(precoFinal, "down");
-      } else if (arredondamentoGlobal === "terminacao") {
-        precoFinal = arredondarComTerminacao(precoFinal, terminacaoGlobal);
       }
     }
 
@@ -205,10 +194,7 @@ export function PlanItem({ planId }: PlanItemProps) {
                       <Select
                         value={plano.arredondamento.tipo}
                         onValueChange={(v) =>
-                          setTipoArredondamento(
-                            plano.id,
-                            v as "up" | "down" | "terminacao"
-                          )
+                          setTipoArredondamento(plano.id, v as "up" | "down")
                         }
                       >
                         <SelectTrigger className="w-full">
@@ -217,47 +203,9 @@ export function PlanItem({ planId }: PlanItemProps) {
                         <SelectContent>
                           <SelectItem value="up">Para cima</SelectItem>
                           <SelectItem value="down">Para baixo</SelectItem>
-                          <SelectItem value="terminacao">
-                            Terminação específica
-                          </SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
-
-                    {plano.arredondamento.tipo === "terminacao" && (
-                      <div className="flex flex-col gap-2">
-                        <Label>Terminação</Label>
-                        <Select
-                          value={plano.arredondamento.terminacao}
-                          onValueChange={(v) =>
-                            setTerminacaoArredondamento(plano.id, v)
-                          }
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {PRICE_ENDINGS.map((ending) => (
-                              <SelectItem key={ending} value={ending}>
-                                {ending === "9"
-                                  ? "0,90"
-                                  : ending === "99"
-                                  ? "0,99"
-                                  : ending === "95"
-                                  ? "0,95"
-                                  : ending === "90"
-                                  ? "0,90"
-                                  : ending === "0"
-                                  ? "Inteiro"
-                                  : ending === "5"
-                                  ? "Múltiplo de 5"
-                                  : ending}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    )}
                   </div>
                 )}
               </div>

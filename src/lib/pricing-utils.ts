@@ -1,8 +1,11 @@
 // Pricing utility functions
 
-// Common psychological price points
+// Common psychological price points (99, 199, 299, etc)
 export const PSYCHOLOGICAL_PRICES = [
-  9, 19, 29, 39, 49, 59, 69, 79, 89, 99, 149, 199, 249, 299, 399, 499, 999,
+  9, 19, 29, 39, 49, 59, 69, 79, 89, 99, 109, 119, 129, 139, 149, 159, 169, 179,
+  189, 199, 209, 219, 229, 239, 249, 259, 269, 279, 289, 299, 349, 399, 449,
+  499, 549, 599, 649, 699, 749, 799, 849, 899, 949, 999, 1499, 1999, 2499, 2999,
+  4999, 9999,
 ];
 
 // Common price endings (for custom rounding)
@@ -47,17 +50,27 @@ export function arredondarPsicologico(
   direcao: "up" | "down"
 ): number {
   if (direcao === "up") {
-    // Find the smallest psychological price that is >= the value
+    // Find the nearest psychological price that is >= the value
     for (const p of PSYCHOLOGICAL_PRICES) {
-      if (valor <= p) return p;
+      if (p >= valor) return p;
     }
-    return valor;
+    // If no match found, round up to nearest 9 ending
+    const intPart = Math.floor(valor);
+    if (intPart === valor) {
+      return intPart + 9;
+    }
+    return intPart + 9;
   } else {
-    // Find the largest psychological price that is <= the value
+    // Find the nearest psychological price that is <= the value
     for (let i = PSYCHOLOGICAL_PRICES.length - 1; i >= 0; i--) {
-      if (valor >= PSYCHOLOGICAL_PRICES[i]) return PSYCHOLOGICAL_PRICES[i];
+      if (PSYCHOLOGICAL_PRICES[i] <= valor) return PSYCHOLOGICAL_PRICES[i];
     }
-    return valor;
+    // If no match found, round down to nearest 9 ending
+    const intPart = Math.floor(valor);
+    if (intPart === valor) {
+      return intPart - 1;
+    }
+    return intPart - 1;
   }
 }
 

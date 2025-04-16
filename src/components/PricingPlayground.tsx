@@ -20,7 +20,8 @@ import { PlanItem } from "./PlanItem";
 import { QuizPrecos } from "./QuizPrecos";
 import { SimulacaoReceita } from "./SimulacaoReceita";
 import { ThemeSwitcher } from "./ThemeSwitcher";
-import { BILLING_PERIODS, PRICE_ENDINGS } from "../lib/pricing-utils";
+import { BILLING_PERIODS } from "../lib/pricing-utils";
+import html2canvas from "html2canvas";
 
 export default function PricingPlayground() {
   // Get state from store
@@ -33,8 +34,6 @@ export default function PricingPlayground() {
     setAjuste,
     arredondamento,
     setArredondamento,
-    terminacao,
-    setTerminacao,
     tabAtiva,
     setTabAtiva,
     mostrarPrecoAnual,
@@ -51,6 +50,11 @@ export default function PricingPlayground() {
     precoBase: 0,
     periodo: "mensal",
   });
+
+  // Proportional pricing state
+  const [proporcaoAtiva, setProporcaoAtiva] = useState(false);
+  const [planoBase, setPlanoBase] = useState<string | null>(null);
+  const [multiplicador, setMultiplicador] = useState(1.5);
 
   // Handler for adding a new plan
   function handleAddPlano() {
@@ -69,6 +73,45 @@ export default function PricingPlayground() {
     });
   }
 
+  // Apply proportional pricing
+  function aplicarProporcao() {
+    if (!planoBase || !proporcaoAtiva || planos.length < 2) return;
+
+    const planoReferencia = planos.find((p) => p.id === planoBase);
+    if (!planoReferencia) return;
+
+    const precoBase = planoReferencia.precoBase;
+
+    // Update other plans based on the base plan
+    planos.forEach((plano) => {
+      if (plano.id !== planoBase) {
+        const novoPreco = precoBase * multiplicador;
+        usePricingStore.getState().updatePlano(plano.id, {
+          precoBase: Math.round(novoPreco),
+        });
+      }
+    });
+  }
+
+  // Export plans as image
+  const exportarPlanos = async () => {
+    const planosElement = document.getElementById("planos-container");
+    if (!planosElement) return;
+
+    try {
+      const canvas = await html2canvas(planosElement);
+      const image = canvas.toDataURL("image/png");
+
+      // Create download link
+      const link = document.createElement("a");
+      link.href = image;
+      link.download = "pricing-plans.png";
+      link.click();
+    } catch (error) {
+      console.error("Erro ao exportar planos:", error);
+    }
+  };
+
   return (
     <div className="w-full max-w-4xl mx-auto py-6">
       <header className="flex justify-between items-center mb-8">
@@ -80,7 +123,12 @@ export default function PricingPlayground() {
             Simule, calcule e planeje sua estratégia de precificação
           </p>
         </div>
-        <ThemeSwitcher />
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={exportarPlanos}>
+            Exportar Planos
+          </Button>
+          <ThemeSwitcher />
+        </div>
       </header>
 
       <Tabs
@@ -160,9 +208,7 @@ export default function PricingPlayground() {
                     value={arredondamento || "none"}
                     onValueChange={(v) =>
                       setArredondamento(
-                        v === "none"
-                          ? null
-                          : (v as "up" | "down" | "terminacao")
+                        v === "none" ? null : (v as "up" | "down")
                       )
                     }
                   >
@@ -173,38 +219,8 @@ export default function PricingPlayground() {
                       <SelectItem value="none">Sem arredondamento</SelectItem>
                       <SelectItem value="up">Para cima</SelectItem>
                       <SelectItem value="down">Para baixo</SelectItem>
-                      <SelectItem value="terminacao">
-                        Terminação específica
-                      </SelectItem>
                     </SelectContent>
                   </Select>
-
-                  {arredondamento === "terminacao" && (
-                    <Select value={terminacao} onValueChange={setTerminacao}>
-                      <SelectTrigger className="w-[180px]">
-                        <SelectValue placeholder="Selecione a terminação" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {PRICE_ENDINGS.map((ending) => (
-                          <SelectItem key={ending} value={ending}>
-                            {ending === "9"
-                              ? "0,90"
-                              : ending === "99"
-                              ? "0,99"
-                              : ending === "95"
-                              ? "0,95"
-                              : ending === "90"
-                              ? "0,90"
-                              : ending === "0"
-                              ? "Inteiro"
-                              : ending === "5"
-                              ? "Múltiplo de 5"
-                              : ending}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -220,11 +236,85 @@ export default function PricingPlayground() {
                     Mostrar equivalente anual
                   </Label>
                 </div>
+
+                <div className="flex items-center gap-2">
+                  <Switch
+                    id="proporcao-ativa"
+                    checked={proporcaoAtiva}
+                    onCheckedChange={setProporcaoAtiva}
+                  />
+                  <Label htmlFor="proporcao-ativa" className="cursor-pointer">
+                    Usar precificação proporcional
+                  </Label>
+                </div>
+
+                {proporcaoAtiva && (
+                  <div className="mt-2 space-y-4 bg-neutral-50 dark:bg-neutral-800 p-3 rounded-md">
+                    <div className="space-y-2">
+                      <Label>Plano de referência</Label>
+                      <Select
+                        value={planoBase || ""}
+                        onValueChange={setPlanoBase}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione um plano" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {planos.map((plano) => (
+                            <SelectItem key={plano.id} value={plano.id}>
+                              {plano.nome} - {plano.precoBase}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Multiplicador para outros planos</Label>
+                      <div className="flex items-center gap-2">
+                        <Slider
+                          min={0.5}
+                          max={5}
+                          step={0.1}
+                          value={[multiplicador]}
+                          onValueChange={([v]) => setMultiplicador(v)}
+                          className="flex-1"
+                        />
+                        <Input
+                          type="number"
+                          min={0.5}
+                          max={5}
+                          step={0.1}
+                          value={multiplicador}
+                          onChange={(e) =>
+                            setMultiplicador(Number(e.target.value))
+                          }
+                          className="w-16"
+                        />
+                      </div>
+                      <p className="text-xs text-neutral-500">
+                        Os outros planos serão {multiplicador}x o preço do plano
+                        de referência
+                      </p>
+                    </div>
+
+                    <Button
+                      onClick={aplicarProporcao}
+                      disabled={!planoBase || planos.length < 2}
+                      className="w-full"
+                    >
+                      Aplicar proporção
+                    </Button>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-white dark:bg-neutral-900 shadow-md">
+          <Card
+            id="planos-container"
+            className="bg-white dark:bg-neutral-900 shadow-md"
+          >
             <CardHeader>
               <CardTitle className="text-lg font-semibold">Planos</CardTitle>
             </CardHeader>

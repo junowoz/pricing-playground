@@ -9,8 +9,8 @@ export interface Plan {
   periodo: BillingPeriod;
   arredondamento: {
     ativo: boolean;
-    tipo: "up" | "down" | "terminacao";
-    terminacao: string; // For custom endings like "99", "9", etc.
+    tipo: "up" | "down";
+    terminacao: string; // Kept for backward compatibility
   };
 }
 
@@ -46,10 +46,7 @@ export interface PricingState {
   removePlano: (id: string) => void;
   updatePlano: (id: string, updates: Partial<Omit<Plan, "id">>) => void;
   toggleArredondamento: (id: string, ativo: boolean) => void;
-  setTipoArredondamento: (
-    id: string,
-    tipo: "up" | "down" | "terminacao"
-  ) => void;
+  setTipoArredondamento: (id: string, tipo: "up" | "down") => void;
   setTerminacaoArredondamento: (id: string, terminacao: string) => void;
 
   // Discount settings
@@ -61,11 +58,9 @@ export interface PricingState {
   setAjuste: (ajuste: number) => void;
 
   // Global rounding
-  arredondamento: null | "up" | "down" | "terminacao";
+  arredondamento: null | "up" | "down";
   terminacao: string;
-  setArredondamento: (
-    arredondamento: null | "up" | "down" | "terminacao"
-  ) => void;
+  setArredondamento: (arredondamento: null | "up" | "down") => void;
   setTerminacao: (terminacao: string) => void;
 
   // Business simulation
@@ -166,8 +161,8 @@ export const usePricingStore = create<PricingState>((set) => ({
       ),
     })),
 
-  // Initial discount (20%)
-  desconto: 20,
+  // Initial discount (30%)
+  desconto: 30,
   setDesconto: (desconto) => set({ desconto }),
 
   // Initial adjustment (0%)
@@ -221,7 +216,7 @@ export const usePricingStore = create<PricingState>((set) => ({
     })),
 
   // Mode (light/dark)
-  modoDark: false,
+  modoDark: true,
   toggleModoDark: () => set((state) => ({ modoDark: !state.modoDark })),
 
   // View settings
