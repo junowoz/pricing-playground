@@ -1,36 +1,83 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Pricing Playground
 
-## Getting Started
+Uma ferramenta interativa para simular, calcular e visualizar estratégias de precificação para planos e assinaturas.
 
-First, run the development server:
+## 📱 Live Demo
+
+Execute o projeto localmente e acesse em: `http://localhost:3000`
+
+## 🚀 Funcionalidades
+
+- **Gerenciamento de Planos:**
+
+  - Adicione, edite e remova planos
+  - Configure preço base e período (mensal, trimestral, anual)
+
+- **Simulações de Preço:**
+
+  - Aplique descontos para períodos não-mensais
+  - Ajuste global de preços com controle percentual
+  - Arredondamento para valores psicologicamente atrativos
+
+- **Visualização de Resultados:**
+
+  - Veja todos os planos e preços calculados
+  - Receitas mensais e totais estimadas
+
+- **Sugestão de Preço:**
+
+  - Assistente interativo baseado em segmento e concorrência
+  - Recomendações baseadas em melhores práticas de mercado
+
+- **Design Responsivo:**
+  - Interface otimizada para dispositivos móveis e desktop
+  - Suporte a modo claro/escuro
+
+## 🛠️ Tecnologias Utilizadas
+
+- **Next.js 15** - Framework React com App Router
+- **TypeScript** - Tipagem estática
+- **Tailwind CSS** - Utilitários CSS
+- **Shadcn/UI** - Componentes de UI
+- **Zustand** - Gerenciamento de estado
+
+## 📋 Como Usar
+
+### Simulador de Preços
+
+1. Configure o desconto para planos não-mensais (%)
+2. Ajuste o percentual global de preços (+/-)
+3. Escolha arredondar para cima ou para baixo se desejar
+4. Adicione seus planos com nome, preço base e período
+5. Visualize automaticamente os resultados calculados
+
+### Recomendação de Preço
+
+1. Selecione o segmento do seu produto (básico, intermediário, premium)
+2. Adicione os preços de concorrentes como referência
+3. Receba uma recomendação de preço baseada nos dados fornecidos
+4. Adicione o preço recomendado como um novo plano (opcional)
+
+## 🚀 Executando Localmente
 
 ```bash
+# Clone o repositório
+git clone https://github.com/seu-usuario/pricing-playground.git
+
+# Entre no diretório
+cd pricing-playground
+
+# Instale as dependências
+npm install
+
+# Inicie o servidor de desenvolvimento
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 📝 Contribuições
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Contribuições são bem-vindas! Sinta-se à vontade para abrir issues ou enviar pull requests.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📜 Licença
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Este projeto está licenciado sob a licença MIT.
